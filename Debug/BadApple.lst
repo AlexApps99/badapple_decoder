@@ -1,0 +1,1193 @@
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 30-Jun-2021 02:00:37  PAGE    1
+
+************ OBJECT LISTING ************
+
+FILE NAME: C:\Users\LXB\Desktop\touhou\BadApple\BadApple.c
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+      BadApple.c     1    // TODO make the file format's first two bytes specify W and H
+      BadApple.c     2    // That way it's a lot more flexible
+      BadApple.c     3    
+      BadApple.c     4    #include "stdio.h"
+      BadApple.c     5    #include "stdlib.h"
+      BadApple.c     6    #include "string.h"
+      BadApple.c     7    #include "fxlib.h"
+      BadApple.c     8    #include "filebios.h"
+      BadApple.c     9    #include "dispbios.h"
+      BadApple.c    10    #include "timer.h"
+      BadApple.c    11    
+      BadApple.c    12    #define W 80
+      BadApple.c    13    #define H 64
+      BadApple.c    14    #define PIXELS (W * H)
+      BadApple.c    15    #define VRAM_BYTES (PIXELS / 8)
+      BadApple.c    16    #define MIN_RLE_SIZE (PIXELS / 128)
+      BadApple.c    17    
+      BadApple.c    18    static unsigned char vram[VRAM_BYTES] = {0};
+      BadApple.c    19    static unsigned char buf[MIN_RLE_SIZE] = {0};
+      BadApple.c    20    static unsigned short int pixels = 0;
+      BadApple.c    21    static int f = -1;
+      BadApple.c    22    const FONTCHARACTER file_name[]={'\\','\\','c','r','d','0','\\','B','A','D','.','e','n','c',0};
+      BadApple.c    23    
+      BadApple.c    24    static GRAPHDATA screen;
+      BadApple.c    25    static DISPGRAPH area;
+      BadApple.c    26    
+      BadApple.c    27    static void full() { Bfile_ReadFile(f, vram, VRAM_BYTES, -1); }
+P   00000000              __$full:                         ; function: full
+                                                           ; frame size=0
+    00000000 9651                   MOV.W       L501,R6    ; H'0280
+    00000002 E7FF                   MOV         #-1,R7
+    00000004 D529                   MOV.L       L501+6,R5  ; __$vram
+    00000006 D32A                   MOV.L       L501+10,R3 ; __$f
+    00000008 D22A                   MOV.L       L501+14,R2 ; _Bfile_ReadFile
+    0000000A 422B                   JMP         @R2
+    0000000C 6432                   MOV.L       @R3,R4
+      BadApple.c    28    
+      BadApple.c    29    static void rle_dec(unsigned char data) {
+    0000000E              __$rle_dec:                      ; function: rle_dec
+                                                           ; frame size=28
+      BadApple.c    30      char n = data >> 1;
+    0000000E 654C                   EXTU.B      R4,R5
+    00000010 2FE6                   MOV.L       R14,@-R15
+    00000012 4501                   SHLR        R5
+    00000014 2FD6                   MOV.L       R13,@-R15
+    00000016 2FC6                   MOV.L       R12,@-R15
+    00000018 2FB6                   MOV.L       R11,@-R15
+      BadApple.c    31      unsigned char on = data & 1;
+    0000001A EB01                   MOV         #1,R11
+    0000001C 2FA6                   MOV.L       R10,@-R15
+    0000001E 2B49                   AND         R4,R11
+    00000020 2F96                   MOV.L       R9,@-R15
+    00000022 7FFC                   ADD         #-4,R15
+      BadApple.c    32      // fprintf(stderr, "%d %d %d %d %d\n", i, buf[i], pixels, n, on);
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 30-Jun-2021 02:00:37  PAGE    2
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+      BadApple.c    33      unsigned char offset = pixels % 8;
+    00000024 D424                   MOV.L       L501+18,R4 ; __$pixels
+    00000026 6941                   MOV.W       @R4,R9
+    00000028 699D                   EXTU.W      R9,R9
+    0000002A 6093                   MOV         R9,R0
+    0000002C 4011                   CMP/PZ      R0
+    0000002E 8B01                   BF          L467
+    00000030 A005                   BRA         L468
+    00000032 C907                   AND         #7,R0
+    00000034              L467:                             
+    00000034 6007                   NOT         R0,R0
+    00000036 7001                   ADD         #1,R0
+    00000038 C907                   AND         #7,R0
+    0000003A 6007                   NOT         R0,R0
+    0000003C 7001                   ADD         #1,R0
+    0000003E              L468:                             
+    0000003E 6C03                   MOV         R0,R12
+      BadApple.c    34      unsigned char old_vram = vram[pixels / 8];
+    00000040 D61A                   MOV.L       L501+6,R6  ; __$vram
+    00000042 6093                   MOV         R9,R0
+    00000044 9E30                   MOV.W       L501+2,R14 ; H'00FF
+    00000046 6DCC                   EXTU.B      R12,R13
+    00000048 4021                   SHAR        R0
+    0000004A 4021                   SHAR        R0
+    0000004C 4021                   SHAR        R0
+    0000004E 6A63                   MOV         R6,R10
+    00000050 2DD8                   TST         R13,R13
+    00000052 8D51                   BT/S        L469
+    00000054 076C                   MOV.B       @(R0,R6),R7
+      BadApple.c    35      if (offset != 0) {
+      BadApple.c    36        // Set from point unwritten to, to end of byte
+      BadApple.c    37        if (on != 0) {
+    00000056 63BC                   EXTU.B      R11,R3
+    00000058 2338                   TST         R3,R3
+    0000005A 890A                   BT          L470
+      BadApple.c    38          vram[pixels / 8] |= 0xFF >> offset;
+    0000005C 6093                   MOV         R9,R0
+    0000005E 4021                   SHAR        R0
+    00000060 4021                   SHAR        R0
+    00000062 4021                   SHAR        R0
+    00000064 01AC                   MOV.B       @(R0,R10),R1
+    00000066 63DB                   NEG         R13,R3
+    00000068 62E3                   MOV         R14,R2
+    0000006A 423C                   SHAD        R3,R2
+    0000006C 212B                   OR          R2,R1
+    0000006E A00B                   BRA         L471
+    00000070 0A14                   MOV.B       R1,@(R0,R10)
+    00000072              L470:                             
+      BadApple.c    39        } else {
+      BadApple.c    40          vram[pixels / 8] &= ~(0xFF >> offset);
+    00000072 6093                   MOV         R9,R0
+    00000074 4021                   SHAR        R0
+    00000076 4021                   SHAR        R0
+    00000078 4021                   SHAR        R0
+    0000007A 63DB                   NEG         R13,R3
+    0000007C 62E3                   MOV         R14,R2
+    0000007E 423C                   SHAD        R3,R2
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 30-Jun-2021 02:00:37  PAGE    3
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    00000080 03AC                   MOV.B       @(R0,R10),R3
+    00000082 6227                   NOT         R2,R2
+    00000084 2329                   AND         R2,R3
+    00000086 0A34                   MOV.B       R3,@(R0,R10)
+    00000088              L471:                             
+    00000088 E008                   MOV         #8,R0
+    0000008A 6ACC                   EXTU.B      R12,R10
+    0000008C 6903                   MOV         R0,R9
+    0000008E 625E                   EXTS.B      R5,R2
+    00000090 6303                   MOV         R0,R3
+    00000092 33D8                   SUB         R13,R3
+    00000094 3233                   CMP/GE      R3,R2
+    00000096 8F11                   BF/S        L472
+    00000098 39C8                   SUB         R12,R9
+      BadApple.c    41        }
+      BadApple.c    42        // If the rest of the byte is entirely filled
+      BadApple.c    43        if (n >= 8 - offset) {
+      BadApple.c    44          pixels += 8 - offset;
+    0000009A 30A8                   SUB         R10,R0
+    0000009C 6341                   MOV.W       @R4,R3
+    0000009E 330C                   ADD         R0,R3
+    000000A0 2431                   MOV.W       R3,@R4
+      BadApple.c    45          n -= 8 - offset;
+    000000A2 A029                   BRA         L469
+    000000A4 3598                   SUB         R9,R5
+    000000A6              L501:                             
+    000000A6 0280                   .DATA.W     H'0280
+    000000A8 00FF                   .DATA.W     H'00FF
+    000000AA 0000                   .DATA.W     0
+    000000AC <00000000>             .DATA.L     __$vram
+    000000B0 <00000000>             .DATA.L     __$f
+    000000B4 <00000000>             .DATA.L     _Bfile_ReadFile
+    000000B8 <00000000>             .DATA.L     __$pixels
+    000000BC              L472:                             
+      BadApple.c    46        } else {
+      BadApple.c    47          // Overwrote too much, need to correct
+      BadApple.c    48          n -= 8 - offset;
+      BadApple.c    49          vram[pixels / 8] &= 0xFF << -n;
+    000000BC 6041                   MOV.W       @R4,R0
+    000000BE 63E3                   MOV         R14,R3
+    000000C0 3598                   SUB         R9,R5
+    000000C2 600D                   EXTU.W      R0,R0
+    000000C4 4009                   SHLR2       R0
+    000000C6 4001                   SHLR        R0
+    000000C8 625E                   EXTS.B      R5,R2
+    000000CA 622B                   NEG         R2,R2
+    000000CC 432C                   SHAD        R2,R3
+      BadApple.c    50          vram[pixels / 8] |= old_vram & ~(0xFF << -n);
+      BadApple.c    51          pixels += 8 - offset + n;
+    000000CE 655E                   EXTS.B      R5,R5
+    000000D0 2F32                   MOV.L       R3,@R15
+    000000D2 35A8                   SUB         R10,R5
+    000000D4 026C                   MOV.B       @(R0,R6),R2
+    000000D6 7508                   ADD         #8,R5
+    000000D8 2239                   AND         R3,R2
+    000000DA 0624                   MOV.B       R2,@(R0,R6)
+    000000DC 6041                   MOV.W       @R4,R0
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 30-Jun-2021 02:00:37  PAGE    4
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    000000DE 600D                   EXTU.W      R0,R0
+    000000E0 62F2                   MOV.L       @R15,R2
+    000000E2 4009                   SHLR2       R0
+    000000E4 4001                   SHLR        R0
+    000000E6 6227                   NOT         R2,R2
+    000000E8 036C                   MOV.B       @(R0,R6),R3
+    000000EA 2279                   AND         R7,R2
+    000000EC 232B                   OR          R2,R3
+    000000EE 0634                   MOV.B       R3,@(R0,R6)
+    000000F0 6241                   MOV.W       @R4,R2
+    000000F2 325C                   ADD         R5,R2
+    000000F4 2421                   MOV.W       R2,@R4
+      BadApple.c    52          n = 0;
+    000000F6 E500                   MOV         #0,R5
+    000000F8              L469:                             
+      BadApple.c    53        }
+      BadApple.c    54      }
+      BadApple.c    55      // Any overlap will be corrected below
+      BadApple.c    56      while (n > 0) {
+    000000F8 635E                   EXTS.B      R5,R3
+    000000FA 4315                   CMP/PL      R3
+    000000FC 8F0E                   BF/S        L474
+    000000FE 6CBB                   NEG         R11,R12
+    00000100              L475:                             
+      BadApple.c    57        old_vram = vram[pixels / 8];
+    00000100 6D41                   MOV.W       @R4,R13
+      BadApple.c    58        vram[pixels / 8] = 0xFF * on;
+      BadApple.c    59        pixels += 8;
+      BadApple.c    60        n -= 8;
+    00000102 75F8                   ADD         #-8,R5
+    00000104 6DDD                   EXTU.W      R13,R13
+    00000106 4D09                   SHLR2       R13
+    00000108 4D01                   SHLR        R13
+    0000010A 3D6C                   ADD         R6,R13
+    0000010C 67D0                   MOV.B       @R13,R7
+    0000010E 635E                   EXTS.B      R5,R3
+    00000110 2DC0                   MOV.B       R12,@R13
+    00000112 4315                   CMP/PL      R3
+    00000114 6241                   MOV.W       @R4,R2
+    00000116 7208                   ADD         #8,R2
+    00000118 2421                   MOV.W       R2,@R4
+    0000011A 89F1                   BT          L475
+    0000011C              L474:                             
+    0000011C 6D5E                   EXTS.B      R5,R13
+    0000011E 2DD8                   TST         R13,R13
+    00000120 891D                   BT          L476
+      BadApple.c    61      }
+      BadApple.c    62      // overlap
+      BadApple.c    63      if (n != 0) {
+      BadApple.c    64        // Overwrote too much, need to correct
+      BadApple.c    65        pixels -= 8;
+      BadApple.c    66        vram[pixels / 8] &= 0xFF << -n;
+    00000122 6DDB                   NEG         R13,R13
+    00000124 6241                   MOV.W       @R4,R2
+      BadApple.c    67        vram[pixels / 8] |= old_vram & ~(0xFF << -n);
+      BadApple.c    68        pixels += 8;
+      BadApple.c    69        pixels += n;
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 30-Jun-2021 02:00:37  PAGE    5
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    00000126 655E                   EXTS.B      R5,R5
+    00000128 72F8                   ADD         #-8,R2
+    0000012A 4EDC                   SHAD        R13,R14
+    0000012C 2421                   MOV.W       R2,@R4
+    0000012E 6041                   MOV.W       @R4,R0
+    00000130 2FE2                   MOV.L       R14,@R15
+    00000132 600D                   EXTU.W      R0,R0
+    00000134 4009                   SHLR2       R0
+    00000136 4001                   SHLR        R0
+    00000138 036C                   MOV.B       @(R0,R6),R3
+    0000013A 23E9                   AND         R14,R3
+    0000013C 0634                   MOV.B       R3,@(R0,R6)
+    0000013E 6041                   MOV.W       @R4,R0
+    00000140 62F2                   MOV.L       @R15,R2
+    00000142 600D                   EXTU.W      R0,R0
+    00000144 4009                   SHLR2       R0
+    00000146 4001                   SHLR        R0
+    00000148 036C                   MOV.B       @(R0,R6),R3
+    0000014A 6227                   NOT         R2,R2
+    0000014C 2279                   AND         R7,R2
+    0000014E 232B                   OR          R2,R3
+    00000150 0634                   MOV.B       R3,@(R0,R6)
+    00000152 6241                   MOV.W       @R4,R2
+    00000154 7208                   ADD         #8,R2
+    00000156 2421                   MOV.W       R2,@R4
+    00000158 6341                   MOV.W       @R4,R3
+    0000015A 335C                   ADD         R5,R3
+    0000015C 2431                   MOV.W       R3,@R4
+    0000015E              L476:                             
+      BadApple.c    70        n = 0;
+      BadApple.c    71      }
+      BadApple.c    72    }
+    0000015E 7F04                   ADD         #4,R15
+    00000160 69F6                   MOV.L       @R15+,R9
+    00000162 6AF6                   MOV.L       @R15+,R10
+    00000164 6BF6                   MOV.L       @R15+,R11
+    00000166 6CF6                   MOV.L       @R15+,R12
+    00000168 6DF6                   MOV.L       @R15+,R13
+    0000016A 000B                   RTS
+    0000016C 6EF6                   MOV.L       @R15+,R14
+      BadApple.c    73    
+      BadApple.c    74    static void rle_dec_d(unsigned char data) {
+    0000016E              __$rle_dec_d:                    ; function: rle_dec_d
+                                                           ; frame size=36
+      BadApple.c    75      char n = data >> 1;
+    0000016E 654C                   EXTU.B      R4,R5
+    00000170 2FE6                   MOV.L       R14,@-R15
+    00000172 4501                   SHLR        R5
+    00000174 2FD6                   MOV.L       R13,@-R15
+      BadApple.c    76      unsigned char on = data & 1;
+    00000176 ED01                   MOV         #1,R13
+    00000178 2FC6                   MOV.L       R12,@-R15
+    0000017A 2D49                   AND         R4,R13
+    0000017C 2FB6                   MOV.L       R11,@-R15
+    0000017E 2FA6                   MOV.L       R10,@-R15
+    00000180 2F96                   MOV.L       R9,@-R15
+    00000182 2F86                   MOV.L       R8,@-R15
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 30-Jun-2021 02:00:37  PAGE    6
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    00000184 4F12                   STS.L       MACL,@-R15
+    00000186 7FFC                   ADD         #-4,R15
+      BadApple.c    77      // fprintf(stderr, "%d %d %d %d %d\n", i, buf[i], pixels, n, on);
+      BadApple.c    78      unsigned char offset = pixels % 8;
+    00000188 D41A                   MOV.L       L502+4,R4  ; __$pixels
+    0000018A 6841                   MOV.W       @R4,R8
+    0000018C 688D                   EXTU.W      R8,R8
+    0000018E 6083                   MOV         R8,R0
+    00000190 4011                   CMP/PZ      R0
+    00000192 8B01                   BF          L477
+    00000194 A005                   BRA         L478
+    00000196 C907                   AND         #7,R0
+    00000198              L477:                             
+    00000198 6007                   NOT         R0,R0
+    0000019A 7001                   ADD         #1,R0
+    0000019C C907                   AND         #7,R0
+    0000019E 6007                   NOT         R0,R0
+    000001A0 7001                   ADD         #1,R0
+    000001A2              L478:                             
+    000001A2 6B03                   MOV         R0,R11
+    000001A4 9A24                   MOV.W       L502,R10   ; H'00FF
+      BadApple.c    79      unsigned char mask = 0;
+    000001A6 E700                   MOV         #0,R7
+    000001A8 D613                   MOV.L       L502+8,R6  ; __$vram
+    000001AA 6CBC                   EXTU.B      R11,R12
+    000001AC 2CC8                   TST         R12,R12
+    000001AE 8D3A                   BT/S        L479
+      BadApple.c    80      unsigned char old_vram = 0;
+    000001B0 6E73                   MOV         R7,R14
+      BadApple.c    81      if (offset != 0) {
+      BadApple.c    82        // Set from point unwritten to, to end of byte
+      BadApple.c    83        if (on != 0) {
+    000001B2 62DC                   EXTU.B      R13,R2
+    000001B4 2228                   TST         R2,R2
+    000001B6 8D03                   BT/S        L480
+    000001B8 69BC                   EXTU.B      R11,R9
+      BadApple.c    84          mask = 0xFF >> offset;
+    000001BA 63CB                   NEG         R12,R3
+    000001BC 67A3                   MOV         R10,R7
+    000001BE 473C                   SHAD        R3,R7
+    000001C0              L480:                             
+    000001C0 E208                   MOV         #8,R2
+    000001C2 32B8                   SUB         R11,R2
+    000001C4 635E                   EXTS.B      R5,R3
+    000001C6 E108                   MOV         #8,R1
+    000001C8 31C8                   SUB         R12,R1
+    000001CA 3313                   CMP/GE      R1,R3
+    000001CC 8F16                   BF/S        L481
+    000001CE 2F20                   MOV.B       R2,@R15
+      BadApple.c    85        }
+      BadApple.c    86        // If the rest of the byte is entirely filled
+      BadApple.c    87        if (n >= 8 - offset) {
+      BadApple.c    88          vram[pixels / 8] ^= mask;
+    000001D0 4821                   SHAR        R8
+    000001D2 4821                   SHAR        R8
+    000001D4 4821                   SHAR        R8
+    000001D6 6383                   MOV         R8,R3
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 30-Jun-2021 02:00:37  PAGE    7
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    000001D8 336C                   ADD         R6,R3
+    000001DA 6130                   MOV.B       @R3,R1
+    000001DC 217A                   XOR         R7,R1
+    000001DE 2310                   MOV.B       R1,@R3
+      BadApple.c    89          pixels += 8 - offset;
+    000001E0 6241                   MOV.W       @R4,R2
+    000001E2 E308                   MOV         #8,R3
+    000001E4 3398                   SUB         R9,R3
+    000001E6 323C                   ADD         R3,R2
+    000001E8 2421                   MOV.W       R2,@R4
+      BadApple.c    90          n -= 8 - offset;
+    000001EA 63F0                   MOV.B       @R15,R3
+    000001EC A01B                   BRA         L479
+    000001EE 3538                   SUB         R3,R5
+    000001F0              L502:                             
+    000001F0 00FF                   .DATA.W     H'00FF
+    000001F2 0000                   .DATA.W     0
+    000001F4 <00000000>             .DATA.L     __$pixels
+    000001F8 <00000000>             .DATA.L     __$vram
+    000001FC              L481:                             
+      BadApple.c    91        } else {
+      BadApple.c    92          // Overwrote too much, need to correct
+      BadApple.c    93          n -= 8 - offset;
+    000001FC 3528                   SUB         R2,R5
+      BadApple.c    94          mask &= 0xFF << -n;
+    000001FE 635E                   EXTS.B      R5,R3
+    00000200 633B                   NEG         R3,R3
+    00000202 61A3                   MOV         R10,R1
+    00000204 413C                   SHAD        R3,R1
+    00000206 2719                   AND         R1,R7
+      BadApple.c    95          vram[pixels / 8] ^= mask;
+    00000208 4821                   SHAR        R8
+    0000020A 4821                   SHAR        R8
+    0000020C 4821                   SHAR        R8
+    0000020E 6383                   MOV         R8,R3
+    00000210 336C                   ADD         R6,R3
+      BadApple.c    96          pixels += 8 - offset + n;
+    00000212 655E                   EXTS.B      R5,R5
+    00000214 6130                   MOV.B       @R3,R1
+    00000216 3598                   SUB         R9,R5
+    00000218 217A                   XOR         R7,R1
+    0000021A 7508                   ADD         #8,R5
+    0000021C 2310                   MOV.B       R1,@R3
+    0000021E 6341                   MOV.W       @R4,R3
+    00000220 335C                   ADD         R5,R3
+      BadApple.c    97          n = 0;
+    00000222 E500                   MOV         #0,R5
+    00000224 2431                   MOV.W       R3,@R4
+    00000226              L479:                             
+      BadApple.c    98        }
+      BadApple.c    99      }
+      BadApple.c   100      // Any overlap will be corrected below
+      BadApple.c   101      // The code below here is sus AF
+      BadApple.c   102      while (n > 0) {
+    00000226 625E                   EXTS.B      R5,R2
+    00000228 4215                   CMP/PL      R2
+    0000022A 8F10                   BF/S        L483
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 30-Jun-2021 02:00:37  PAGE    8
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    0000022C 6CDB                   NEG         R13,R12
+    0000022E              L484:                             
+      BadApple.c   103        old_vram = vram[pixels / 8];
+      BadApple.c   104        vram[pixels / 8] ^= 0xFF * on;
+      BadApple.c   105        pixels += 8;
+      BadApple.c   106        n -= 8;
+    0000022E 75F8                   ADD         #-8,R5
+    00000230 6741                   MOV.W       @R4,R7
+    00000232 677D                   EXTU.W      R7,R7
+    00000234 4709                   SHLR2       R7
+    00000236 4701                   SHLR        R7
+    00000238 376C                   ADD         R6,R7
+    0000023A 6E70                   MOV.B       @R7,R14
+    0000023C 6270                   MOV.B       @R7,R2
+    0000023E 22CA                   XOR         R12,R2
+    00000240 2720                   MOV.B       R2,@R7
+    00000242 625E                   EXTS.B      R5,R2
+    00000244 6341                   MOV.W       @R4,R3
+    00000246 4215                   CMP/PL      R2
+    00000248 7308                   ADD         #8,R3
+    0000024A 2431                   MOV.W       R3,@R4
+    0000024C 89EF                   BT          L484
+    0000024E              L483:                             
+    0000024E 675E                   EXTS.B      R5,R7
+    00000250 2778                   TST         R7,R7
+    00000252 8913                   BT          L485
+      BadApple.c   107      }
+      BadApple.c   108      // overlap
+      BadApple.c   109      if (n != 0) {
+      BadApple.c   110        // Overwrote too much, need to correct
+      BadApple.c   111        pixels -= 8;
+    00000254 6341                   MOV.W       @R4,R3
+      BadApple.c   112        vram[pixels / 8] = old_vram ^ ((0xFF << -n) * on);
+    00000256 677B                   NEG         R7,R7
+    00000258 73F8                   ADD         #-8,R3
+    0000025A 4A7C                   SHAD        R7,R10
+    0000025C 2431                   MOV.W       R3,@R4
+      BadApple.c   113        pixels += 8;
+      BadApple.c   114        pixels += n;
+    0000025E 655E                   EXTS.B      R5,R5
+    00000260 2ADE                   MULU        R13,R10
+    00000262 6041                   MOV.W       @R4,R0
+    00000264 600D                   EXTU.W      R0,R0
+    00000266 4009                   SHLR2       R0
+    00000268 4001                   SHLR        R0
+    0000026A 0A1A                   STS         MACL,R10
+    0000026C 2AEA                   XOR         R14,R10
+    0000026E 06A4                   MOV.B       R10,@(R0,R6)
+    00000270 6241                   MOV.W       @R4,R2
+    00000272 7208                   ADD         #8,R2
+    00000274 2421                   MOV.W       R2,@R4
+    00000276 6341                   MOV.W       @R4,R3
+    00000278 335C                   ADD         R5,R3
+    0000027A 2431                   MOV.W       R3,@R4
+    0000027C              L485:                             
+      BadApple.c   115        n = 0;
+      BadApple.c   116      }
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 30-Jun-2021 02:00:37  PAGE    9
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+      BadApple.c   117    }
+    0000027C 7F04                   ADD         #4,R15
+    0000027E 4F16                   LDS.L       @R15+,MACL
+    00000280 68F6                   MOV.L       @R15+,R8
+    00000282 69F6                   MOV.L       @R15+,R9
+    00000284 6AF6                   MOV.L       @R15+,R10
+    00000286 6BF6                   MOV.L       @R15+,R11
+    00000288 6CF6                   MOV.L       @R15+,R12
+    0000028A 6DF6                   MOV.L       @R15+,R13
+    0000028C 000B                   RTS
+    0000028E 6EF6                   MOV.L       @R15+,R14
+      BadApple.c   118    
+      BadApple.c   119    static void full_rle() {
+    00000290              __$full_rle:                     ; function: full_rle
+                                                           ; frame size=32
+    00000290 2FE6                   MOV.L       R14,@-R15
+      BadApple.c   120      unsigned char i = 0;
+      BadApple.c   121      pixels = 0;
+      BadApple.c   122      // By reading a lot at once this will
+      BadApple.c   123      // mean less read calls
+      BadApple.c   124      Bfile_ReadFile(f, buf, MIN_RLE_SIZE, -1);
+    00000292 E7FF                   MOV         #-1,R7
+    00000294 2FD6                   MOV.L       R13,@-R15
+    00000296 E628                   MOV         #40,R6
+    00000298 2FC6                   MOV.L       R12,@-R15
+    0000029A EC00                   MOV         #0,R12
+    0000029C DD29                   MOV.L       L503+16,R13; __$buf
+    0000029E 2FB6                   MOV.L       R11,@-R15
+    000002A0 2FA6                   MOV.L       R10,@-R15
+    000002A2 65D3                   MOV         R13,R5
+    000002A4 DB26                   MOV.L       L503+12,R11; __$f
+    000002A6 2F96                   MOV.L       R9,@-R15
+    000002A8 2F86                   MOV.L       R8,@-R15
+    000002AA 4F22                   STS.L       PR,@-R15
+    000002AC DA22                   MOV.L       L503+4,R10 ; __$pixels
+    000002AE 2AC1                   MOV.W       R12,@R10
+    000002B0 D922                   MOV.L       L503+8,R9  ; _Bfile_ReadFile
+    000002B2 490B                   JSR         @R9
+    000002B4 64B2                   MOV.L       @R11,R4
+    000002B6 E828                   MOV         #40,R8
+    000002B8 EE00                   MOV         #0,R14
+    000002BA 3EDC                   ADD         R13,R14
+      BadApple.c   125      for (; i < MIN_RLE_SIZE; i++) {
+    000002BC              L486:                             
+      BadApple.c   126        rle_dec(buf[i]);
+    000002BC BEA7                   BSR         __$rle_dec
+    000002BE 64E4                   MOV.B       @R14+,R4
+    000002C0 7C01                   ADD         #1,R12
+    000002C2 62CC                   EXTU.B      R12,R2
+    000002C4 3283                   CMP/GE      R8,R2
+    000002C6 8BF9                   BF          L486
+    000002C8 9E34                   MOV.W       L503,R14   ; H'1400
+      BadApple.c   127      }
+      BadApple.c   128      while (pixels < PIXELS) {
+    000002CA A007                   BRA         L487
+    000002CC 6CD3                   MOV         R13,R12
+    000002CE              L488:                             
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 30-Jun-2021 02:00:37  PAGE   10
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+      BadApple.c   129        Bfile_ReadFile(f, buf, 1, -1);
+    000002CE E7FF                   MOV         #-1,R7
+    000002D0 E601                   MOV         #1,R6
+    000002D2 65D3                   MOV         R13,R5
+    000002D4 490B                   JSR         @R9
+    000002D6 64B2                   MOV.L       @R11,R4
+      BadApple.c   130        rle_dec(buf[0]);
+    000002D8 BE99                   BSR         __$rle_dec
+    000002DA 64C0                   MOV.B       @R12,R4
+    000002DC              L487:                             
+    000002DC 62A1                   MOV.W       @R10,R2
+    000002DE 622D                   EXTU.W      R2,R2
+    000002E0 32E3                   CMP/GE      R14,R2
+    000002E2 8BF4                   BF          L488
+      BadApple.c   131      }
+      BadApple.c   132    }
+    000002E4 4F26                   LDS.L       @R15+,PR
+    000002E6 68F6                   MOV.L       @R15+,R8
+    000002E8 69F6                   MOV.L       @R15+,R9
+    000002EA 6AF6                   MOV.L       @R15+,R10
+    000002EC 6BF6                   MOV.L       @R15+,R11
+    000002EE 6CF6                   MOV.L       @R15+,R12
+    000002F0 6DF6                   MOV.L       @R15+,R13
+    000002F2 000B                   RTS
+    000002F4 6EF6                   MOV.L       @R15+,R14
+      BadApple.c   133    
+      BadApple.c   134    static void delta() {
+    000002F6              __$delta:                        ; function: delta
+                                                           ; frame size=32
+      BadApple.c   135      unsigned char i = 0;
+      BadApple.c   136      pixels = 0;
+      BadApple.c   137      // By reading a lot at once this will
+      BadApple.c   138      // mean less read calls
+      BadApple.c   139      Bfile_ReadFile(f, buf, MIN_RLE_SIZE, -1);
+    000002F6 E7FF                   MOV         #-1,R7
+    000002F8 2FE6                   MOV.L       R14,@-R15
+    000002FA E628                   MOV         #40,R6
+    000002FC 2FD6                   MOV.L       R13,@-R15
+    000002FE 2FC6                   MOV.L       R12,@-R15
+    00000300 2FB6                   MOV.L       R11,@-R15
+    00000302 EC00                   MOV         #0,R12
+    00000304 DD0F                   MOV.L       L503+16,R13; __$buf
+    00000306 2FA6                   MOV.L       R10,@-R15
+    00000308 2F96                   MOV.L       R9,@-R15
+    0000030A 65D3                   MOV         R13,R5
+    0000030C DA0A                   MOV.L       L503+4,R10 ; __$pixels
+    0000030E 2F86                   MOV.L       R8,@-R15
+    00000310 4F22                   STS.L       PR,@-R15
+    00000312 2AC1                   MOV.W       R12,@R10
+    00000314 D909                   MOV.L       L503+8,R9  ; _Bfile_ReadFile
+    00000316 DB0A                   MOV.L       L503+12,R11; __$f
+    00000318 490B                   JSR         @R9
+    0000031A 64B2                   MOV.L       @R11,R4
+    0000031C E828                   MOV         #40,R8
+    0000031E EE00                   MOV         #0,R14
+    00000320 3EDC                   ADD         R13,R14
+      BadApple.c   140      for (; i < MIN_RLE_SIZE; i++) {
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 30-Jun-2021 02:00:37  PAGE   11
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    00000322              L489:                             
+      BadApple.c   141        rle_dec_d(buf[i]);
+    00000322 BF24                   BSR         __$rle_dec_d
+    00000324 64E4                   MOV.B       @R14+,R4
+    00000326 7C01                   ADD         #1,R12
+    00000328 62CC                   EXTU.B      R12,R2
+    0000032A 3283                   CMP/GE      R8,R2
+    0000032C 8BF9                   BF          L489
+    0000032E 9E01                   MOV.W       L503,R14   ; H'1400
+      BadApple.c   142      }
+      BadApple.c   143      while (pixels < PIXELS) {
+    00000330 A011                   BRA         L490
+    00000332 6CD3                   MOV         R13,R12
+    00000334              L503:                             
+    00000334 1400                   .DATA.W     H'1400
+    00000336 0000                   .DATA.W     0
+    00000338 <00000000>             .DATA.L     __$pixels
+    0000033C <00000000>             .DATA.L     _Bfile_ReadFile
+    00000340 <00000000>             .DATA.L     __$f
+    00000344 <00000000>             .DATA.L     __$buf
+    00000348              L491:                             
+      BadApple.c   144        Bfile_ReadFile(f, buf, 1, -1);
+    00000348 E7FF                   MOV         #-1,R7
+    0000034A E601                   MOV         #1,R6
+    0000034C 65D3                   MOV         R13,R5
+    0000034E 490B                   JSR         @R9
+    00000350 64B2                   MOV.L       @R11,R4
+      BadApple.c   145        rle_dec_d(buf[0]);
+    00000352 BF0C                   BSR         __$rle_dec_d
+    00000354 64C0                   MOV.B       @R12,R4
+    00000356              L490:                             
+    00000356 62A1                   MOV.W       @R10,R2
+    00000358 622D                   EXTU.W      R2,R2
+    0000035A 32E3                   CMP/GE      R14,R2
+    0000035C 8BF4                   BF          L491
+      BadApple.c   146      }
+      BadApple.c   147    }
+    0000035E 4F26                   LDS.L       @R15+,PR
+    00000360 68F6                   MOV.L       @R15+,R8
+    00000362 69F6                   MOV.L       @R15+,R9
+    00000364 6AF6                   MOV.L       @R15+,R10
+    00000366 6BF6                   MOV.L       @R15+,R11
+    00000368 6CF6                   MOV.L       @R15+,R12
+    0000036A 6DF6                   MOV.L       @R15+,R13
+    0000036C 000B                   RTS
+    0000036E 6EF6                   MOV.L       @R15+,R14
+      BadApple.c   148    
+      BadApple.c   149    static void fill(unsigned char col) { memset(vram, col, VRAM_BYTES); }
+    00000370              __$fill:                         ; function: fill
+                                                           ; frame size=4
+    00000370 9650                   MOV.W       L504,R6    ; H'0280
+    00000372 7FFC                   ADD         #-4,R15
+    00000374 D329                   MOV.L       L504+8,R3  ; _memset
+    00000376 2F40                   MOV.B       R4,@R15
+    00000378 65F0                   MOV.B       @R15,R5
+    0000037A 655C                   EXTU.B      R5,R5
+    0000037C D426                   MOV.L       L504+4,R4  ; __$vram
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 30-Jun-2021 02:00:37  PAGE   12
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    0000037E 432B                   JMP         @R3
+    00000380 7F04                   ADD         #4,R15
+      BadApple.c   150    
+      BadApple.c   151    static void decode(unsigned char code) {
+    00000382              __$decode:                       ; function: decode
+                                                           ; frame size=0
+      BadApple.c   152      switch (code) {
+    00000382 604C                   EXTU.B      R4,R0
+    00000384 8800                   CMP/EQ      #0,R0
+    00000386 8916                   BT          L492
+    00000388 8801                   CMP/EQ      #1,R0
+    0000038A 8909                   BT          L459
+    0000038C 8802                   CMP/EQ      #2,R0
+    0000038E 8909                   BT          L460
+    00000390 8803                   CMP/EQ      #3,R0
+    00000392 8909                   BT          L461
+    00000394 8804                   CMP/EQ      #4,R0
+    00000396 8909                   BT          L462
+    00000398 8805                   CMP/EQ      #5,R0
+    0000039A 8909                   BT          L463
+    0000039C A00B                   BRA         L492
+    0000039E 0009                   NOP
+    000003A0              L459:                            ; case label 
+      BadApple.c   153        case 0: // Blank
+      BadApple.c   154          break;
+      BadApple.c   155        case 1: // Full
+      BadApple.c   156          full();
+    000003A0 AE2E                   BRA         __$full
+    000003A2 0009                   NOP
+    000003A4              L460:                            ; case label 
+      BadApple.c   157          break;
+      BadApple.c   158        case 2: // Full (RLE)
+      BadApple.c   159          full_rle();
+    000003A4 AF74                   BRA         __$full_rle
+    000003A6 0009                   NOP
+    000003A8              L461:                            ; case label 
+      BadApple.c   160          break;
+      BadApple.c   161        case 3: // Delta
+      BadApple.c   162          delta();
+    000003A8 AFA5                   BRA         __$delta
+    000003AA 0009                   NOP
+    000003AC              L462:                            ; case label 
+      BadApple.c   163          break;
+      BadApple.c   164        case 4: // Clear screen
+      BadApple.c   165          fill(0x00);
+      BadApple.c   166          break;
+    000003AC A001                   BRA         L500
+    000003AE E400                   MOV         #0,R4
+    000003B0              L463:                            ; case label 
+      BadApple.c   167        case 5: // Clear screen
+      BadApple.c   168          fill(0xFF);
+    000003B0 9431                   MOV.W       L504+2,R4  ; H'00FF
+      BadApple.c   169          break;
+    000003B2              L500:                             
+    000003B2 AFDD                   BRA         __$fill
+    000003B4 0009                   NOP
+    000003B6              L492:                             
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 30-Jun-2021 02:00:37  PAGE   13
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+      BadApple.c   170        default:
+      BadApple.c   171          break;
+      BadApple.c   172      }
+      BadApple.c   173    }
+    000003B6 000B                   RTS
+    000003B8 0009                   NOP
+      BadApple.c   174    
+      BadApple.c   175    static void quit() {
+    000003BA              __$quit:                         ; function: quit
+                                                           ; frame size=4
+    000003BA 4F22                   STS.L       PR,@-R15
+      BadApple.c   176            KillTimer(ID_USER_TIMER1);
+    000003BC D318                   MOV.L       L504+12,R3 ; _KillTimer
+    000003BE 430B                   JSR         @R3
+    000003C0 E401                   MOV         #1,R4
+      BadApple.c   177            Bfile_CloseFile(f);
+    000003C2 D218                   MOV.L       L504+16,R2 ; __$f
+    000003C4 D318                   MOV.L       L504+20,R3 ; _Bfile_CloseFile
+    000003C6 6422                   MOV.L       @R2,R4
+    000003C8 432B                   JMP         @R3
+    000003CA 4F26                   LDS.L       @R15+,PR
+      BadApple.c   178    }
+      BadApple.c   179    
+      BadApple.c   180    static void step_frame() {
+    000003CC              __$step_frame:                   ; function: step_frame
+                                                           ; frame size=12
+    000003CC 2FE6                   MOV.L       R14,@-R15
+      BadApple.c   181            if (!Bfile_ReadFile(f, buf, 1, -1) == 1) {
+    000003CE E7FF                   MOV         #-1,R7
+    000003D0 D317                   MOV.L       L504+28,R3 ; _Bfile_ReadFile
+    000003D2 E601                   MOV         #1,R6
+    000003D4 2FD6                   MOV.L       R13,@-R15
+    000003D6 4F22                   STS.L       PR,@-R15
+    000003D8 DD14                   MOV.L       L504+24,R13; __$buf
+    000003DA DE12                   MOV.L       L504+16,R14; __$f
+    000003DC 65D3                   MOV         R13,R5
+    000003DE 430B                   JSR         @R3
+    000003E0 64E2                   MOV.L       @R14,R4
+    000003E2 2008                   TST         R0,R0
+    000003E4 0029                   MOVT        R0
+    000003E6 8801                   CMP/EQ      #1,R0
+    000003E8 8B09                   BF          L493
+      BadApple.c   182                    Bfile_SeekFile(f, 0);
+    000003EA E500                   MOV         #0,R5
+    000003EC D211                   MOV.L       L504+32,R2 ; _Bfile_SeekFile
+    000003EE 420B                   JSR         @R2
+    000003F0 64E2                   MOV.L       @R14,R4
+      BadApple.c   183                    Bfile_ReadFile(f, buf, 1, -1);
+    000003F2 E7FF                   MOV         #-1,R7
+    000003F4 D30E                   MOV.L       L504+28,R3 ; _Bfile_ReadFile
+    000003F6 E601                   MOV         #1,R6
+    000003F8 65D3                   MOV         R13,R5
+    000003FA 430B                   JSR         @R3
+    000003FC 64E2                   MOV.L       @R14,R4
+    000003FE              L493:                             
+      BadApple.c   184            }
+      BadApple.c   185            decode(buf[0]);
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 30-Jun-2021 02:00:37  PAGE   14
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    000003FE BFC0                   BSR         __$decode
+    00000400 64D0                   MOV.B       @R13,R4
+      BadApple.c   186            Bdisp_WriteGraph_VRAM(&area);
+    00000402 D40D                   MOV.L       L504+36,R4 ; __$area
+    00000404 D30D                   MOV.L       L504+40,R3 ; _Bdisp_WriteGraph_VRAM
+    00000406 430B                   JSR         @R3
+    00000408 0009                   NOP
+      BadApple.c   187            Bdisp_PutDisp_DD();
+    0000040A 4F26                   LDS.L       @R15+,PR
+    0000040C D20C                   MOV.L       L504+44,R2 ; _Bdisp_PutDisp_DD
+    0000040E 6DF6                   MOV.L       @R15+,R13
+    00000410 422B                   JMP         @R2
+    00000412 6EF6                   MOV.L       @R15+,R14
+    00000414              L504:                             
+    00000414 0280                   .DATA.W     H'0280
+    00000416 00FF                   .DATA.W     H'00FF
+    00000418 <00000000>             .DATA.L     __$vram
+    0000041C <00000000>             .DATA.L     _memset
+    00000420 <00000000>             .DATA.L     _KillTimer
+    00000424 <00000000>             .DATA.L     __$f
+    00000428 <00000000>             .DATA.L     _Bfile_CloseFile
+    0000042C <00000000>             .DATA.L     __$buf
+    00000430 <00000000>             .DATA.L     _Bfile_ReadFile
+    00000434 <00000000>             .DATA.L     _Bfile_SeekFile
+    00000438 <00000000>             .DATA.L     __$area
+    0000043C <00000000>             .DATA.L     _Bdisp_WriteGraph_VRAM
+    00000440 <00000000>             .DATA.L     _Bdisp_PutDisp_DD
+      BadApple.c   188    }
+      BadApple.c   189    
+      BadApple.c   190    int AddIn_main(int _unused1, unsigned short _unused2) {
+    00000444              _AddIn_main:                     ; function: AddIn_main
+                                                           ; frame size=16
+                                                           ; used runtime library name:
+                                                           ; __quick_odd_mvn
+    00000444 2FE6                   MOV.L       R14,@-R15
+      BadApple.c   191            unsigned int key = 0;
+    00000446 E300                   MOV         #0,R3
+      BadApple.c   192            screen.width = W;
+    00000448 D520                   MOV.L       L505+2,R5  ; __$screen
+      BadApple.c   193            screen.height = H;
+    0000044A E240                   MOV         #64,R2
+      BadApple.c   194            screen.pBitmap = vram;
+      BadApple.c   195            area.x = ((128 - W) / 2);
+    0000044C D421                   MOV.L       L505+10,R4 ; __$area
+    0000044E 2FD6                   MOV.L       R13,@-R15
+    00000450 4F22                   STS.L       PR,@-R15
+      BadApple.c   196            area.y = 0;
+      BadApple.c   197            area.GraphData = screen;
+    00000452 6143                   MOV         R4,R1
+    00000454 7FFC                   ADD         #-4,R15
+    00000456 7108                   ADD         #8,R1
+    00000458 2F32                   MOV.L       R3,@R15
+    0000045A E350                   MOV         #80,R3
+    0000045C 2532                   MOV.L       R3,@R5
+    0000045E 1521                   MOV.L       R2,@(4,R5)
+    00000460 D31B                   MOV.L       L505+6,R3  ; __$vram
+    00000462 E218                   MOV         #24,R2
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 30-Jun-2021 02:00:37  PAGE   15
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    00000464 1532                   MOV.L       R3,@(8,R5)
+    00000466 E300                   MOV         #0,R3
+    00000468 2422                   MOV.L       R2,@R4
+    0000046A 6253                   MOV         R5,R2
+    0000046C 1431                   MOV.L       R3,@(4,R4)
+    0000046E D31A                   MOV.L       L505+14,R3 ; __quick_odd_mvn
+    00000470 430B                   JSR         @R3
+    00000472 E00C                   MOV         #12,R0
+      BadApple.c   198            area.WriteModify = IMB_WRITEMODIFY_NORMAL;
+      BadApple.c   199            area.WriteKind = IMB_WRITEKIND_OVER;
+      BadApple.c   200        Bdisp_AllClr_DDVRAM();
+    00000474 D319                   MOV.L       L505+18,R3 ; _Bdisp_AllClr_DDVRAM
+    00000476 E501                   MOV         #1,R5
+    00000478 E014                   MOV         #20,R0
+    0000047A 0454                   MOV.B       R5,@(R0,R4)
+    0000047C E015                   MOV         #21,R0
+    0000047E 430B                   JSR         @R3
+    00000480 0454                   MOV.B       R5,@(R0,R4)
+      BadApple.c   201            f = Bfile_OpenFile(file_name, _OPENMODE_READ);
+    00000482 D417                   MOV.L       L505+22,R4 ; _file_name
+    00000484 D217                   MOV.L       L505+26,R2 ; _Bfile_OpenFile
+    00000486 420B                   JSR         @R2
+    00000488 E501                   MOV         #1,R5
+      BadApple.c   202            if (f < 0) return -1;
+    0000048A 4011                   CMP/PZ      R0
+    0000048C D316                   MOV.L       L505+30,R3 ; __$f
+    0000048E 8D02                   BT/S        L495
+    00000490 2302                   MOV.L       R0,@R3
+    00000492 A015                   BRA         L496
+    00000494 E0FF                   MOV         #-1,R0
+    00000496              L495:                             
+      BadApple.c   203            SetQuitHandler(quit);
+    00000496 D415                   MOV.L       L505+34,R4 ; __$quit
+    00000498 D315                   MOV.L       L505+38,R3 ; _SetQuitHandler
+    0000049A 430B                   JSR         @R3
+    0000049C 0009                   NOP
+      BadApple.c   204            SetTimer(ID_USER_TIMER1, 50, step_frame);
+    0000049E E532                   MOV         #50,R5
+    000004A0 D215                   MOV.L       L505+46,R2 ; _SetTimer
+    000004A2 D614                   MOV.L       L505+42,R6 ; __$step_frame
+    000004A4 420B                   JSR         @R2
+    000004A6 E401                   MOV         #1,R4
+    000004A8 DD14                   MOV.L       L505+50,R13; _GetKey
+    000004AA 9E0E                   MOV.W       L505,R14   ; H'753F
+      BadApple.c   205            while (key != KEY_CTRL_AC) {
+    000004AC A002                   BRA         L497
+    000004AE 0009                   NOP
+    000004B0              L498:                             
+      BadApple.c   206                    GetKey(&key);
+    000004B0 4D0B                   JSR         @R13
+    000004B2 64F3                   MOV         R15,R4
+    000004B4              L497:                             
+    000004B4 62F2                   MOV.L       @R15,R2
+    000004B6 32E0                   CMP/EQ      R14,R2
+    000004B8 8BFA                   BF          L498
+      BadApple.c   207            }
+      BadApple.c   208            quit();
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 30-Jun-2021 02:00:37  PAGE   16
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    000004BA BF7E                   BSR         __$quit
+    000004BC 0009                   NOP
+      BadApple.c   209            return 0;
+    000004BE E000                   MOV         #0,R0
+      BadApple.c   210    }
+    000004C0              L496:                             
+    000004C0 7F04                   ADD         #4,R15
+    000004C2 4F26                   LDS.L       @R15+,PR
+    000004C4 6DF6                   MOV.L       @R15+,R13
+    000004C6 000B                   RTS
+    000004C8 6EF6                   MOV.L       @R15+,R14
+    000004CA              L505:                             
+    000004CA 753F                   .DATA.W     H'753F
+    000004CC <00000000>             .DATA.L     __$screen
+    000004D0 <00000000>             .DATA.L     __$vram
+    000004D4 <00000000>             .DATA.L     __$area
+    000004D8 <00000000>             .DATA.L     __quick_odd_mvn
+    000004DC <00000000>             .DATA.L     _Bdisp_AllClr_DDVRAM
+    000004E0 <00000000>             .DATA.L     _file_name
+    000004E4 <00000000>             .DATA.L     _Bfile_OpenFile
+    000004E8 <00000000>             .DATA.L     __$f
+    000004EC <00000000>             .DATA.L     __$quit
+    000004F0 <00000000>             .DATA.L     _SetQuitHandler
+    000004F4 <00000000>             .DATA.L     __$step_frame
+    000004F8 <00000000>             .DATA.L     _SetTimer
+    000004FC <00000000>             .DATA.L     _GetKey
+      BadApple.c   211    
+      BadApple.c   212    // Please do not change the following source.
+      BadApple.c   213    #pragma section _BR_Size
+      BadApple.c   214    unsigned long BR_Size;
+      BadApple.c   215    #pragma section
+      BadApple.c   216    #pragma section _TOP
+      BadApple.c   217    int InitializeSystem(int isAppli, unsigned short OptionNum) {
+P_T 00000000              _InitializeSystem:               ; function: InitializeSystem
+                                                           ; frame size=0
+      BadApple.c   218        return INIT_ADDIN_APPLICATION(isAppli, OptionNum);
+    00000000 D301                   MOV.L       L506+2,R3  ; _INIT_ADDIN_APPLICATION
+    00000002 432B                   JMP         @R3
+    00000004 0009                   NOP
+    00000006              L506:                             
+    00000006 0000                   .DATA.W     0
+    00000008 <00000000>             .DATA.L     _INIT_ADDIN_APPLICATION
+      BadApple.c   219    }
+      BadApple.c   220    #pragma section
+D   00000000              __$vram:                         ; static: vram
+    00000000 00                     .DATA.B     H'00
+    00000001 0000027F01             .DATAB.B    639,0
+             00           
+    00000280              __$buf:                          ; static: buf
+    00000280 00                     .DATA.B     H'00
+    00000281 0000002701             .DATAB.B    39,0
+             00           
+    000002A8              __$pixels:                       ; static: pixels
+    000002A8 0000                   .DATA.W     H'0000
+    000002AA 00000002               .RES.W      1
+    000002AC              __$f:                            ; static: f
+    000002AC FFFFFFFF               .DATA.L     H'FFFFFFFF
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 30-Jun-2021 02:00:37  PAGE   17
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+C   00000000              _file_name:                      ; static: file_name
+    00000000 005C005C00             .DATA.W     H'005C,H'005C,H'0063,H'0072,H'0064,H'0030,H'005C,H'0042,H'0041,H'0044,H'002E,H'0065,
+             6300720064 +                       H'006E,H'0063,H'0000
+             0030005C00   
+             4200410044   
+             002E006500   
+             6E00630000   
+B   00000000              __$screen:                       ; static: screen
+    00000000 0000000C               .RES.L      3
+    0000000C              __$area:                         ; static: area
+    0000000C 00000018               .RES.L      6
+B_B 00000000              _BR_Size:                        ; static: BR_Size
+    00000000 00000004               .RES.L      1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 30-Jun-2021 02:00:37  PAGE    1
+
+
+******** STATISTICS INFORMATION ********
+
+
+********** ERROR INFORMATION ***********
+
+NUMBER OF ERRORS:           0
+NUMBER OF WARNINGS:         2
+
+
+
+
+******* SOURCE LINE INFORMATION ********
+
+COMPILED SOURCE LINE:      220
+
+
+
+******* SECTION SIZE INFORMATION *******
+
+PROGRAM  SECTION (P):                               00000500 Byte(s)
+PROGRAM  SECTION (P_BR_Size):                       00000000 Byte(s)
+PROGRAM  SECTION (P_TOP):                           0000000C Byte(s)
+CONSTANT SECTION (C):                               0000001E Byte(s)
+CONSTANT SECTION (C_BR_Size):                       00000000 Byte(s)
+CONSTANT SECTION (C_TOP):                           00000000 Byte(s)
+DATA     SECTION (D):                               000002B0 Byte(s)
+DATA     SECTION (D_BR_Size):                       00000000 Byte(s)
+DATA     SECTION (D_TOP):                           00000000 Byte(s)
+BSS      SECTION (B):                               00000024 Byte(s)
+BSS      SECTION (B_BR_Size):                       00000004 Byte(s)
+BSS      SECTION (B_TOP):                           00000000 Byte(s)
+
+ TOTAL PROGRAM SIZE: 00000802 Byte(s)
+
+
+
+********** LABEL INFORMATION ***********
+
+NUMBER OF EXTERNAL REFERENCE SYMBOLS:           14
+NUMBER OF EXTERNAL DEFINITION SYMBOLS:           4
+NUMBER OF INTERNAL/EXTERNAL SYMBOLS:            59
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*** COMMAND PARAMETER ***
+
+
+  -subcommand=C:\Users\LXB\AppData\Local\Temp\hmkF468.tmp 
+

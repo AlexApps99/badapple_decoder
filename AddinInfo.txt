@@ -1,0 +1,12 @@
+//------------------------------------------------------------------
+// Addin-Application header control file, created with the CASIO SDK
+//------------------------------------------------------------------
+[OUTPUT]     : "BADAPPLE.G1A"
+[BINDATA]    : "FXADDINror.bin"
+[DISPNAME]   : "BadApple"
+[APPNAME]    : "@BADAPPL"
+[VERSION]    : "00.01.0000"
+[APL_ICON]   : "MainIcon.bmp"
+[MODULE_NUM] : 0
+[MOD1_TITLE] : "BadApple"
+[MOD1_ICON]  : "eActivityIcon.bmp"
