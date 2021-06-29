@@ -1,8 +1,8 @@
-Hitachi Optimizing Linkage Editor (Ver. 7.1.03.000)30-Jun-2021 02:00:38
+Hitachi Optimizing Linkage Editor (Ver. 7.1.03.000)30-Jun-2021 04:53:55
 
 *** Options ***
 
--subcommand=C:\Users\LXB\AppData\Local\Temp\hmkF5F0.tmp
+-subcommand=C:\Users\LXB\AppData\Local\Temp\hmk7CA5.tmp
 noprelink
 sdebug
 rom D=R
@@ -29,11 +29,11 @@ SECTION                            START      END         SIZE   ALIGN
 P_TOP
                                   00300200  0030020b         c   4
 P
-                                  0030020c  00301507      12fc   4
+                                  0030020c  0030151f      1314   4
 C
-                                  00301508  0030155f        58   4
+                                  00301520  00301593        74   4
 D
-                                  00301560  00301877       318   4
+                                  00301594  003018ab       318   4
 B_BR_Size
                                   08100000  08100003         4   4
 B
@@ -55,7 +55,7 @@ FILE=C:\Users\LXB\Desktop\touhou\BadApple\Debug\BadApple.obj
 
 SECTION=P
 FILE=C:\Users\LXB\Desktop\touhou\BadApple\Debug\BadApple.obj
-                                  0030020c  0030070b       500
+                                  0030020c  00300723       518
   _full
                                   0030020c         e   func ,l         * 
   _rle_dec
@@ -75,295 +75,297 @@ FILE=C:\Users\LXB\Desktop\touhou\BadApple\Debug\BadApple.obj
   _step_frame
                                   003005d8        78   func ,l         * 
   _AddIn_main
-                                  00300650        bc   func ,g         * 
+                                  00300650        d4   func ,g         * 
 FILE=C:\Users\LXB\Desktop\CASIO\SDK\OS\FX\lib\setup.obj
-                                  0030070c  00300827       11c
+                                  00300724  0030083f       11c
   ___LINK_PROTECT
-                                  0030070c         4   func ,g         * 
+                                  00300724         4   func ,g         * 
   _SetQuitHandler
-                                  00300710         6   func ,g         * 
+                                  00300728         6   func ,g         * 
   _OnAppCloseDefault
-                                  00300716        54   func ,g         * 
+                                  0030072e        54   func ,g         * 
   __INITSCT_ADDIN
-                                  0030076a        48   func ,g         * 
+                                  00300782        48   func ,g         * 
   _INIT_ADDIN_APPLICATION
-                                  003007b2        76   func ,g         * 
+                                  003007ca        76   func ,g         * 
 FILE=__q_fmvn
-                                  00300828  003008cb        a4
+                                  00300840  003008e3        a4
   __quick_evn_mvn
-                                  00300828         0   none ,g         * 
+                                  00300840         0   none ,g         * 
   __quick_odd_mvn
-                                  00300834         0   none ,g         * 
+                                  0030084c         0   none ,g         * 
   A_FMVN_TBL
-                                  00300840         0   none ,l         * 
+                                  00300858         0   none ,l         * 
   FMVN_64
-                                  00300846         0   none ,l         * 
-  FMVN_60
-                                  0030084a         0   none ,l         * 
-  FMVN_56
-                                  0030084e         0   none ,l         * 
-  FMVN_52
-                                  00300852         0   none ,l         * 
-  FMVN_48
-                                  00300856         0   none ,l         * 
-  FMVN_44
-                                  0030085a         0   none ,l         * 
-  FMVN_40
                                   0030085e         0   none ,l         * 
-  FMVN_36
+  FMVN_60
                                   00300862         0   none ,l         * 
-  FMVN_32
+  FMVN_56
                                   00300866         0   none ,l         * 
-  FMVN_28
+  FMVN_52
                                   0030086a         0   none ,l         * 
-  FMVN_24
+  FMVN_48
                                   0030086e         0   none ,l         * 
-  FMVN_20
+  FMVN_44
                                   00300872         0   none ,l         * 
-  FMVN_16
+  FMVN_40
                                   00300876         0   none ,l         * 
-  FMVN_12
+  FMVN_36
                                   0030087a         0   none ,l         * 
-  FMVN_8
+  FMVN_32
                                   0030087e         0   none ,l         * 
-  FMVN_4
+  FMVN_28
                                   00300882         0   none ,l         * 
+  FMVN_24
+                                  00300886         0   none ,l         * 
+  FMVN_20
+                                  0030088a         0   none ,l         * 
+  FMVN_16
+                                  0030088e         0   none ,l         * 
+  FMVN_12
+                                  00300892         0   none ,l         * 
+  FMVN_8
+                                  00300896         0   none ,l         * 
+  FMVN_4
+                                  0030089a         0   none ,l         * 
   FMVN_0
-                                  00300884         0   none ,l         * 
+                                  0030089c         0   none ,l         * 
   FMVN_TBL
-                                  00300888         0   none ,l         * 
+                                  003008a0         0   none ,l         * 
 FILE=memset
-                                  003008cc  003008e3        18
+                                  003008e4  003008fb        18
   _memset
-                                  003008cc        18   func ,g         * 
+                                  003008e4        18   func ,g         * 
 FILE=_Bdel_cychdr
-                                  003008e4  003008f3        10
+                                  003008fc  0030090b        10
   _Bdel_cychdr
-                                  003008e4         0   none ,g         * 
+                                  003008fc         0   none ,g         * 
 FILE=_Bdisp_AllClr_DDVRAM
-                                  003008f4  00300903        10
+                                  0030090c  0030091b        10
   _Bdisp_AllClr_DDVRAM
-                                  003008f4         0   none ,g         * 
+                                  0030090c         0   none ,g         * 
 FILE=_Bdisp_PutDisp_DD
-                                  00300904  00300913        10
+                                  0030091c  0030092b        10
   _Bdisp_PutDisp_DD
-                                  00300904         0   none ,g         * 
+                                  0030091c         0   none ,g         * 
 FILE=_Bdisp_WriteGraph_VRAM
-                                  00300914  00300923        10
+                                  0030092c  0030093b        10
   _Bdisp_WriteGraph_VRAM
-                                  00300914         0   none ,g         * 
+                                  0030092c         0   none ,g         * 
 FILE=_BfileFLS_CloseFile
-                                  00300924  00300933        10
+                                  0030093c  0030094b        10
   _BfileFLS_CloseFile
-                                  00300924         0   none ,g         * 
+                                  0030093c         0   none ,g         * 
 FILE=_Bkey_Set_RepeatTime_Default
-                                  00300934  00300943        10
+                                  0030094c  0030095b        10
   _Bkey_Set_RepeatTime_Default
-                                  00300934         0   none ,g         * 
+                                  0030094c         0   none ,g         * 
 FILE=_CallbackAtQuitMainFunction
-                                  00300944  00300953        10
+                                  0030095c  0030096b        10
   _CallbackAtQuitMainFunction
-                                  00300944         0   none ,g         * 
+                                  0030095c         0   none ,g         * 
 FILE=_flsFindClose
-                                  00300954  00300963        10
+                                  0030096c  0030097b        10
   _flsFindClose
-                                  00300954         0   none ,g         * 
+                                  0030096c         0   none ,g         * 
 FILE=_getkey
-                                  00300964  00300973        10
+                                  0030097c  0030098b        10
   _GetKey
-                                  00300964         0   none ,g         * 
+                                  0030097c         0   none ,g         * 
 FILE=_GLibAddinAplExecutionCheck
-                                  00300974  00300983        10
+                                  0030098c  0030099b        10
   _GLibAddinAplExecutionCheck
-                                  00300974         0   none ,g         * 
+                                  0030098c         0   none ,g         * 
 FILE=_Hmem_SetMMU
-                                  00300984  00300993        10
+                                  0030099c  003009ab        10
   _Hmem_SetMMU
-                                  00300984         0   none ,g         * 
+                                  0030099c         0   none ,g         * 
 FILE=filebios
-                                  00300994  003010c3       730
+                                  003009ac  003010db       730
   _BfileMCS_GetFileHandle
-                                  00300994        6e   func ,g         * 
+                                  003009ac        6e   func ,g         * 
   _Bfile_CloseFile
-                                  00300a02        6e   func ,g         * 
+                                  00300a1a        6e   func ,g         * 
   _BfileMCS_HandleCheck
-                                  00300a70        40   func ,g         * 
+                                  00300a88        40   func ,g         * 
   _MCSFile_InitAll
-                                  00300ab0        3c   func ,g         * 
+                                  00300ac8        3c   func ,g         * 
   _Bfile_ReadFile
-                                  00300aec        e8   func ,g         * 
+                                  00300b04        e8   func ,g         * 
   _Bfile_WriteFile
-                                  00300bd4        de   func ,g         * 
+                                  00300bec        de   func ,g         * 
   _Bfile_SeekFile
-                                  00300cb2        6a   func ,g         * 
+                                  00300cca        6a   func ,g         * 
   _Bfile_OpenMainMemory
-                                  00300d1c        42   func ,g         * 
+                                  00300d34        42   func ,g         * 
   _Bfile_OpenFile
-                                  00300d5e         6   func ,g         * 
+                                  00300d76         6   func ,g         * 
   _Bfile_GetMediaFree
-                                  00300d64        cc   func ,g         * 
+                                  00300d7c        cc   func ,g         * 
   _Bfile_GetFileSize
-                                  00300e30        7a   func ,g         * 
+                                  00300e48        7a   func ,g         * 
   _Bfile_CreateMainMemory
-                                  00300eaa        84   func ,g         * 
+                                  00300ec2        84   func ,g         * 
   _Bfile_CreateFile
-                                  00300f2e        16   func ,g         * 
+                                  00300f46        16   func ,g         * 
   _Bfile_CreateDirectory
-                                  00300f44         8   func ,g         * 
+                                  00300f5c         8   func ,g         * 
   _Bfile_RenameMainMemory
-                                  00300f4c        6a   func ,g         * 
+                                  00300f64        6a   func ,g         * 
   _Bfile_DeleteMainMemory
-                                  00300fb6        6a   func ,g         * 
+                                  00300fce        6a   func ,g         * 
   _Bfile_DeleteFile
-                                  00301020        40   func ,g         * 
+                                  00301038        40   func ,g         * 
   _Bfile_DeleteDirectory
-                                  00301060        64   func ,g         * 
+                                  00301078        64   func ,g         * 
 FILE=timer
-                                  003010c4  003011c3       100
+                                  003010dc  003011db       100
   _GetSDKLibraryVersion
-                                  003010c4         6   func ,g         * 
+                                  003010dc         6   func ,g         * 
   _SetTimer
-                                  003010ca        54   func ,g         * 
+                                  003010e2        54   func ,g         * 
   _KillTimer
-                                  0030111e        44   func ,g         * 
+                                  00301136        44   func ,g         * 
   _Sleep
-                                  00301162        62   func ,g         * 
+                                  0030117a        62   func ,g         * 
 FILE=__divls
-                                  003011c4  00301277        b4
+                                  003011dc  0030128f        b4
   __divls
-                                  003011c4         0   none ,g         * 
+                                  003011dc         0   none ,g         * 
   divls_zero
-                                  00301262         0   none ,l         * 
+                                  0030127a         0   none ,l         * 
   A_errno
-                                  00301270         0   none ,l         * 
+                                  00301288         0   none ,l         * 
   n_zerono
-                                  00301274         0   none ,l         * 
+                                  0030128c         0   none ,l         * 
 FILE=__modls
-                                  00301278  0030133f        c8
+                                  00301290  00301357        c8
   __modls
-                                  00301278         0   none ,g         * 
+                                  00301290         0   none ,g         * 
   modls_L
-                                  0030131e         0   none ,l         * 
+                                  00301336         0   none ,l         * 
   modls_zero
-                                  0030132a         0   none ,l         * 
+                                  00301342         0   none ,l         * 
   A_errno
-                                  00301338         0   none ,l         * 
+                                  00301350         0   none ,l         * 
   n_zerono
-                                  0030133c         0   none ,l         * 
+                                  00301354         0   none ,l         * 
 FILE=__s_mvn
-                                  00301340  00301377        38
+                                  00301358  0030138f        38
   __slow_mvn
-                                  00301340         0   none ,g         * 
+                                  00301358         0   none ,g         * 
   SMVN_B
-                                  0030134e         0   none ,l         * 
+                                  00301366         0   none ,l         * 
   SMVN_END
-                                  00301370         0   none ,l         * 
+                                  00301388         0   none ,l         * 
 FILE=strncmp
-                                  00301378  003013b5        3e
+                                  00301390  003013cd        3e
   _strncmp
-                                  00301378        3e   func ,g         * 
+                                  00301390        3e   func ,g         * 
 FILE=_Bcre_cychdr
-                                  003013b8  003013c7        10
+                                  003013d0  003013df        10
   _Bcre_cychdr
-                                  003013b8         0   none ,g         * 
+                                  003013d0         0   none ,g         * 
 FILE=_Bfile_CloseFile
-                                  003013c8  003013d7        10
+                                  003013e0  003013ef        10
   _Bfile_CloseFile_OS
-                                  003013c8         0   none ,g         * 
+                                  003013e0         0   none ,g         * 
 FILE=_Bfile_CreateEntry
-                                  003013d8  003013e7        10
+                                  003013f0  003013ff        10
   _Bfile_CreateEntry
-                                  003013d8         0   none ,g         * 
+                                  003013f0         0   none ,g         * 
 FILE=_Bfile_DeleteEntry
-                                  003013e8  003013f7        10
+                                  00301400  0030140f        10
   _Bfile_DeleteEntry
-                                  003013e8         0   none ,g         * 
+                                  00301400         0   none ,g         * 
 FILE=_Bfile_GetFileSize
-                                  003013f8  00301407        10
+                                  00301410  0030141f        10
   _Bfile_GetFileSize_OS
-                                  003013f8         0   none ,g         * 
+                                  00301410         0   none ,g         * 
 FILE=_Bfile_GetMediaFree
-                                  00301408  00301417        10
+                                  00301420  0030142f        10
   _Bfile_GetMediaFree_OS
-                                  00301408         0   none ,g         * 
+                                  00301420         0   none ,g         * 
 FILE=_Bfile_OpenFile
-                                  00301418  00301427        10
+                                  00301430  0030143f        10
   _Bfile_OpenFile_OS
-                                  00301418         0   none ,g         * 
+                                  00301430         0   none ,g         * 
 FILE=_Bfile_ReadFile
-                                  00301428  00301437        10
+                                  00301440  0030144f        10
   _Bfile_ReadFile_OS
-                                  00301428         0   none ,g         * 
+                                  00301440         0   none ,g         * 
 FILE=_Bfile_SeekFile
-                                  00301438  00301447        10
+                                  00301450  0030145f        10
   _Bfile_SeekFile_OS
-                                  00301438         0   none ,g         * 
+                                  00301450         0   none ,g         * 
 FILE=_Bfile_WriteFile
-                                  00301448  00301457        10
+                                  00301460  0030146f        10
   _Bfile_WriteFile_OS
-                                  00301448         0   none ,g         * 
+                                  00301460         0   none ,g         * 
 FILE=_BMCSRenameVariable
-                                  00301458  00301467        10
+                                  00301470  0030147f        10
   _BMCSRenameVariable
-                                  00301458         0   none ,g         * 
+                                  00301470         0   none ,g         * 
 FILE=_BSrl_DummyWAIT
-                                  00301468  00301477        10
+                                  00301480  0030148f        10
   _BSrl_DummyWAIT
-                                  00301468         0   none ,g         * 
+                                  00301480         0   none ,g         * 
 FILE=_Bsta_cychdr
-                                  00301478  00301487        10
+                                  00301490  0030149f        10
   _Bsta_cychdr
-                                  00301478         0   none ,g         * 
+                                  00301490         0   none ,g         * 
 FILE=_Bstp_cychdr
-                                  00301488  00301497        10
+                                  003014a0  003014af        10
   _Bstp_cychdr
-                                  00301488         0   none ,g         * 
+                                  003014a0         0   none ,g         * 
 FILE=_GetAppName
-                                  00301498  003014a7        10
+                                  003014b0  003014bf        10
   _GetAppName
-                                  00301498         0   none ,g         * 
+                                  003014b0         0   none ,g         * 
 FILE=_MCSDelVar2
-                                  003014a8  003014b7        10
+                                  003014c0  003014cf        10
   _MCSDelVar2
-                                  003014a8         0   none ,g         * 
+                                  003014c0         0   none ,g         * 
 FILE=_MCSGetCapa
-                                  003014b8  003014c7        10
+                                  003014d0  003014df        10
   _MCSGetCapa
-                                  003014b8         0   none ,g         * 
+                                  003014d0         0   none ,g         * 
 FILE=_MCSGetData1
-                                  003014c8  003014d7        10
+                                  003014e0  003014ef        10
   _MCSGetData1
-                                  003014c8         0   none ,g         * 
+                                  003014e0         0   none ,g         * 
 FILE=_MCSGetDlen2
-                                  003014d8  003014e7        10
+                                  003014f0  003014ff        10
   _MCSGetDlen2
-                                  003014d8         0   none ,g         * 
+                                  003014f0         0   none ,g         * 
 FILE=_MCSOvwDat2
-                                  003014e8  003014f7        10
+                                  00301500  0030150f        10
   _MCSOvwDat2
-                                  003014e8         0   none ,g         * 
+                                  00301500         0   none ,g         * 
 FILE=_MCSPutVar2
-                                  003014f8  00301507        10
+                                  00301510  0030151f        10
   _MCSPutVar2
-                                  003014f8         0   none ,g         * 
+                                  00301510         0   none ,g         * 
 
 SECTION=C
 FILE=C:\Users\LXB\Desktop\touhou\BadApple\Debug\BadApple.obj
-                                  00301508  00301525        1e
-  _file_name
-                                  00301508        1e   data ,g         * 
+                                  00301520  0030155b        3c
+  _file_name_sd
+                                  00301520        1e   data ,g         * 
+  _file_name_mm
+                                  0030153e        1e   data ,g         * 
 FILE=addin_sct
-                                  00301528  0030153b        14
+                                  0030155c  0030156f        14
   _B_BGN
-                                  00301528         0   none ,g         * 
+                                  0030155c         0   none ,g         * 
   _B_END
-                                  0030152c         0   none ,g         * 
+                                  00301560         0   none ,g         * 
   _R_BGN
-                                  00301530         0   none ,g         * 
+                                  00301564         0   none ,g         * 
   _R_END
-                                  00301534         0   none ,g         * 
+                                  00301568         0   none ,g         * 
   _D_ROM
-                                  00301538         0   none ,g         * 
+                                  0030156c         0   none ,g         * 
 
 SECTION=B_BR_Size
 FILE=C:\Users\LXB\Desktop\touhou\BadApple\Debug\BadApple.obj

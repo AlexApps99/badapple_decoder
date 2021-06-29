@@ -22,8 +22,10 @@ static unsigned char vram[VRAM_BYTES] = {0};
 static unsigned char buf[MIN_RLE_SIZE] = {0};
 static unsigned short int pixels = 0;
 static int f = -1;
-const FONTCHARACTER file_name[] = {'\\', '\\', 'c', 'r', 'd', '0', '\\', 'B',
-                                   'A',  'D',  '.', 'e', 'n', 'c', 0};
+const FONTCHARACTER file_name_sd[] = {'\\', '\\', 'c', 'r', 'd', '0', '\\', 'B',
+                                      'A',  'D',  '.', 'e', 'n', 'c', 0};
+const FONTCHARACTER file_name_mm[] = {'\\', '\\', 'f', 'l', 's', '0', '\\', 'B',
+                                      'A',  'D',  '.', 'e', 'n', 'c', 0};
 
 static GRAPHDATA screen;
 static DISPGRAPH area;
@@ -202,11 +204,18 @@ int AddIn_main(int _unused1, unsigned short _unused2) {
   area.WriteModify = IMB_WRITEMODIFY_NORMAL;
   area.WriteKind = IMB_WRITEKIND_OVER;
   Bdisp_AllClr_DDVRAM();
-  f = Bfile_OpenFile(file_name, _OPENMODE_READ);
-  if (f < 0)
-    return -1;
-  SetQuitHandler(quit);
+  f = Bfile_OpenFile(file_name_sd, _OPENMODE_READ);
+  if (f < 0) {
+    f = Bfile_OpenFile(file_name_mm, _OPENMODE_READ);
+    if (f < 0) return -1;
+  }
+  //Bfile_ReadFile(f, buf, 2, -1);
+  //if (buf[0] != W || buf[1] != H) {
+  //  quit();
+  //  return 1;
+  //}
   SetTimer(ID_USER_TIMER1, 50, step_frame);
+  SetQuitHandler(quit);
   while (key != KEY_CTRL_AC) {
     GetKey(&key);
   }
