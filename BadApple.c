@@ -1,12 +1,15 @@
 // TODO make the file format's first two bytes specify W and H
 // That way it's a lot more flexible
+// TODO make the decoding more efficient
+// E.g delta frames can be implemented with a different write mode on the display driver
+// Frame clearing/no change can be implemented trivially as well
 
+#include "dispbios.h"
+#include "filebios.h"
+#include "fxlib.h"
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
-#include "fxlib.h"
-#include "filebios.h"
-#include "dispbios.h"
 #include "timer.h"
 
 #define W 80
@@ -19,7 +22,8 @@ static unsigned char vram[VRAM_BYTES] = {0};
 static unsigned char buf[MIN_RLE_SIZE] = {0};
 static unsigned short int pixels = 0;
 static int f = -1;
-const FONTCHARACTER file_name[]={'\\','\\','c','r','d','0','\\','B','A','D','.','e','n','c',0};
+const FONTCHARACTER file_name[] = {'\\', '\\', 'c', 'r', 'd', '0', '\\', 'B',
+                                   'A',  'D',  '.', 'e', 'n', 'c', 0};
 
 static GRAPHDATA screen;
 static DISPGRAPH area;
@@ -150,63 +154,64 @@ static void fill(unsigned char col) { memset(vram, col, VRAM_BYTES); }
 
 static void decode(unsigned char code) {
   switch (code) {
-    case 0: // Blank
-      break;
-    case 1: // Full
-      full();
-      break;
-    case 2: // Full (RLE)
-      full_rle();
-      break;
-    case 3: // Delta
-      delta();
-      break;
-    case 4: // Clear screen
-      fill(0x00);
-      break;
-    case 5: // Clear screen
-      fill(0xFF);
-      break;
-    default:
-      break;
+  case 0: // Blank
+    break;
+  case 1: // Full
+    full();
+    break;
+  case 2: // Full (RLE)
+    full_rle();
+    break;
+  case 3: // Delta
+    delta();
+    break;
+  case 4: // Clear screen
+    fill(0x00);
+    break;
+  case 5: // Clear screen
+    fill(0xFF);
+    break;
+  default:
+    break;
   }
 }
 
 static void quit() {
-	KillTimer(ID_USER_TIMER1);
-	Bfile_CloseFile(f);
+  KillTimer(ID_USER_TIMER1);
+  Bfile_CloseFile(f);
 }
 
 static void step_frame() {
-	if (!Bfile_ReadFile(f, buf, 1, -1) == 1) {
-		Bfile_SeekFile(f, 0);
-		Bfile_ReadFile(f, buf, 1, -1);
-	}
-	decode(buf[0]);
-	Bdisp_WriteGraph_VRAM(&area);
-	Bdisp_PutDisp_DD();
+  if (!Bfile_ReadFile(f, buf, 1, -1) == 1) {
+    Bfile_SeekFile(f, 0);
+    Bfile_ReadFile(f, buf, 1, -1);
+  }
+  decode(buf[0]);
+  Bdisp_WriteGraph_VRAM(&area);
+  Bdisp_PutDisp_DD();
 }
 
 int AddIn_main(int _unused1, unsigned short _unused2) {
-	unsigned int key = 0;
-	screen.width = W;
-	screen.height = H;
-	screen.pBitmap = vram;
-	area.x = ((128 - W) / 2);
-	area.y = 0;
-	area.GraphData = screen;
-	area.WriteModify = IMB_WRITEMODIFY_NORMAL;
-	area.WriteKind = IMB_WRITEKIND_OVER;
-    Bdisp_AllClr_DDVRAM();
-	f = Bfile_OpenFile(file_name, _OPENMODE_READ);
-	if (f < 0) return -1;
-	SetQuitHandler(quit);
-	SetTimer(ID_USER_TIMER1, 50, step_frame);
-	while (key != KEY_CTRL_AC) {
-		GetKey(&key);
-	}
-	quit();
-	return 0;
+  unsigned int key = 0;
+  screen.width = W;
+  screen.height = H;
+  screen.pBitmap = vram;
+  area.x = ((128 - W) / 2);
+  area.y = 0;
+  area.GraphData = screen;
+  area.WriteModify = IMB_WRITEMODIFY_NORMAL;
+  area.WriteKind = IMB_WRITEKIND_OVER;
+  Bdisp_AllClr_DDVRAM();
+  f = Bfile_OpenFile(file_name, _OPENMODE_READ);
+  if (f < 0)
+    return -1;
+  SetQuitHandler(quit);
+  SetTimer(ID_USER_TIMER1, 50, step_frame);
+  while (key != KEY_CTRL_AC) {
+    GetKey(&key);
+  }
+  quit();
+  return 0;
 }
 
 // Please do not change the following source.
@@ -215,6 +220,6 @@ unsigned long BR_Size;
 #pragma section
 #pragma section _TOP
 int InitializeSystem(int isAppli, unsigned short OptionNum) {
-    return INIT_ADDIN_APPLICATION(isAppli, OptionNum);
+  return INIT_ADDIN_APPLICATION(isAppli, OptionNum);
 }
 #pragma section
